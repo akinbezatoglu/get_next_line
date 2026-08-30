@@ -6,32 +6,32 @@
 /*   By: abezatog <abezatog@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 23:56:32 by abezatog          #+#    #+#             */
-/*   Updated: 2026/08/28 02:17:42 by abezatog         ###   ########.fr       */
+/*   Updated: 2026/08/30 18:40:04 by abezatog         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
-static char	*ft_read_for_line(int fd, char *line)
+static char	*ft_read_buffer(int fd, char *line)
 {
-	char		*buffer;
-	ssize_t		r_bytes;
+	char	*buffer;
+	ssize_t	bytes;
 
-	buffer = malloc((BUFFER_SIZE + 1) * sizeof(char));
+	buffer = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!buffer)
 		return (NULL);
-	r_bytes = 1;
-	while (r_bytes > 0)
+	if (!line)
+		line = ft_strdup("");
+	bytes = 1;
+	while (bytes > 0)
 	{
-		r_bytes = read(fd, buffer, BUFFER_SIZE);
-		if (r_bytes == -1)
+		bytes = read(fd, buffer, BUFFER_SIZE);
+		if (bytes == -1)
 		{
 			free(buffer);
 			return (NULL);
 		}
-		buffer[r_bytes] = '\0';
-		if (!line)
-			line = ft_strdup("");
+		buffer[bytes] = '\0';
 		line = ft_strjoin(line, buffer);
 		if (ft_strchr(buffer, '\n'))
 			break ;
@@ -42,39 +42,20 @@ static char	*ft_read_for_line(int fd, char *line)
 
 char	*get_next_line(int fd)
 {
-	static char	*line;
-	char		*res;
+	static char	*leftover;
+	char		*total_read;
+	char		*exact_line;
 	int			i;
 
-	i = 0;
-	line = ft_read_for_line(fd, line);
-	if (!line || line[0] == '\0')
+	total_read = ft_read_buffer(fd, leftover);
+	if (!total_read || total_read[0] == '\0')
 		return (NULL);
-	while (line[i] && line[i] != '\n')
+	i = 0;
+	while (total_read[i] && total_read[i] != '\n')
 		i++;
-	if (line[i] == '\n')
+	if (total_read[i] == '\n')
 		i++;
-	res = ft_substr(line, 0, i);
-	line = ft_substr(line, i, ft_strlen(line) - i);
-	return (res);
+	exact_line = ft_substr(total_read, 0, i);
+	leftover = ft_substr(total_read, i, ft_strlen(total_read) - 1);
+	return (exact_line);
 }
-
-// #include <stdio.h>
-// #include <fcntl.h>
-// #include <stdlib.h>
-// #include <unistd.h>
-
-// int	main(void)
-// {
-// 	int		fd;
-// 	char	*line;
-
-// 	fd = open("test.txt", O_RDONLY);
-// 	while ((line = get_next_line(fd)) != NULL)
-// 	{
-// 		printf("%s", line);
-// 		free(line);
-// 	}
-// 	close(fd);
-// 	return (0);
-// }

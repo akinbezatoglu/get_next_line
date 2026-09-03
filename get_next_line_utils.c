@@ -6,7 +6,7 @@
 /*   By: abezatog <abezatog@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 23:58:28 by abezatog          #+#    #+#             */
-/*   Updated: 2026/08/28 02:17:10 by abezatog         ###   ########.fr       */
+/*   Updated: 2026/09/03 23:41:09 by abezatog         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,6 +16,8 @@ size_t	ft_strlen(const char *s)
 {
 	size_t	i;
 
+	if (!s)
+		return (0);
 	i = 0;
 	while (s[i] != '\0')
 		i++;
@@ -24,6 +26,8 @@ size_t	ft_strlen(const char *s)
 
 char	*ft_strchr(const char *s, int c)
 {
+	if (!s)
+		return (NULL);
 	while (*s)
 	{
 		if (*s == (char)c)
@@ -41,6 +45,8 @@ char	*ft_strdup(const char *s)
 	size_t	len;
 	char	*ptr;
 
+	if (!s)
+		return (NULL);
 	len = ft_strlen(s);
 	ptr = (char *)malloc((len + 1) * sizeof(char));
 	if (!ptr)

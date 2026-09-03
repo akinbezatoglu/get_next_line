@@ -6,35 +6,42 @@
 /*   By: abezatog <abezatog@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 23:56:32 by abezatog          #+#    #+#             */
-/*   Updated: 2026/08/30 18:40:04 by abezatog         ###   ########.fr       */
+/*   Updated: 2026/09/03 23:42:32 by abezatog         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "get_next_line.h"
 
+static void	*ft_free_line(char **line)
+{
+	free(*line);
+	*line = NULL;
+	return (NULL);
+}
+
 static char	*ft_read_buffer(int fd, char *line)
 {
 	char	*buffer;
+	char	*tmp;
 	ssize_t	bytes;
 
 	buffer = (char *)malloc((BUFFER_SIZE + 1) * sizeof(char));
 	if (!buffer)
 		return (NULL);
-	if (!line)
-		line = ft_strdup("");
 	bytes = 1;
-	while (bytes > 0)
+	while (bytes > 0 && !ft_strchr(line, '\n'))
 	{
 		bytes = read(fd, buffer, BUFFER_SIZE);
 		if (bytes == -1)
 		{
 			free(buffer);
+			free(line);
 			return (NULL);
 		}
 		buffer[bytes] = '\0';
+		tmp = line;
 		line = ft_strjoin(line, buffer);
-		if (ft_strchr(buffer, '\n'))
-			break ;
+		free(tmp);
 	}
 	free(buffer);
 	return (line);
@@ -42,20 +49,26 @@ static char	*ft_read_buffer(int fd, char *line)
 
 char	*get_next_line(int fd)
 {
-	static char	*leftover;
-	char		*total_read;
+	static char	*line;
 	char		*exact_line;
-	int			i;
+	char		*tmp;
 
-	total_read = ft_read_buffer(fd, leftover);
-	if (!total_read || total_read[0] == '\0')
+	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
-	i = 0;
-	while (total_read[i] && total_read[i] != '\n')
-		i++;
-	if (total_read[i] == '\n')
-		i++;
-	exact_line = ft_substr(total_read, 0, i);
-	leftover = ft_substr(total_read, i, ft_strlen(total_read) - 1);
+	if (!line)
+		line = ft_strdup("");
+	line = ft_read_buffer(fd, line);
+	if (!line || line[0] == '\0')
+		return (ft_free_line(&line));
+	if (ft_strchr(line, '\n'))
+	{
+		exact_line = ft_substr(line, 0, ft_strchr(line, '\n') - line + 1);
+		tmp = line;
+		line = ft_strdup(ft_strchr(line, '\n') + 1);
+		free(tmp);
+		return (exact_line);
+	}
+	exact_line = ft_strdup(line);
+	ft_free_line(&line);
 	return (exact_line);
 }

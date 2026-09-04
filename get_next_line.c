@@ -6,7 +6,7 @@
 /*   By: abezatog <abezatog@student.42istanbul.c    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/08/27 23:56:32 by abezatog          #+#    #+#             */
-/*   Updated: 2026/09/03 23:42:32 by abezatog         ###   ########.fr       */
+/*   Updated: 2026/09/04 09:34:40 by abezatog         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -52,6 +52,7 @@ char	*get_next_line(int fd)
 	static char	*line;
 	char		*exact_line;
 	char		*tmp;
+	char		*nl;
 
 	if (fd < 0 || BUFFER_SIZE <= 0)
 		return (NULL);
@@ -60,11 +61,12 @@ char	*get_next_line(int fd)
 	line = ft_read_buffer(fd, line);
 	if (!line || line[0] == '\0')
 		return (ft_free_line(&line));
-	if (ft_strchr(line, '\n'))
+	nl = ft_strchr(line, '\n');
+	if (nl)
 	{
-		exact_line = ft_substr(line, 0, ft_strchr(line, '\n') - line + 1);
+		exact_line = ft_substr(line, 0, nl - line + 1);
 		tmp = line;
-		line = ft_strdup(ft_strchr(line, '\n') + 1);
+		line = ft_strdup(nl + 1);
 		free(tmp);
 		return (exact_line);
 	}
